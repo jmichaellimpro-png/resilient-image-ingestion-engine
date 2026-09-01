@@ -1,0 +1,25 @@
+name: Ingest Hydro-View Images
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - name: Run Ingestion Engine
+        env:
+          HYDRO_VIEW_BEARER_TOKEN: ${{ secrets.HYDRO_VIEW_BEARER_TOKEN }}
+        run: python src/ingest_images.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: camera-feeds
+          path: output_images/
